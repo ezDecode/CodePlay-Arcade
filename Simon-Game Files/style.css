@@ -1,0 +1,235 @@
+@font-face {
+  font-family: "Google Sans";
+  src: url("Font/GoogleSansRegular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  font-family: "Google Sans", sans-serif;
+  text-align: center;
+  background-color: beige;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+h1 {
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  margin-bottom: -0.75rem;
+}
+
+h2 {
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+}
+
+h3 {
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
+}
+
+.btn-container {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 25px;
+  justify-content: center;
+  align-items: center;
+  margin: 15px auto;
+  max-width: min(600px, 90%);
+  padding: 10px;
+}
+
+.btn {
+  height: clamp(120px, 28vw, 140px);
+  width: clamp(120px, 28vw, 140px);
+  border: clamp(4px, 0.8vw, 6px) solid black;
+  margin: 0;
+  position: relative;
+  transition: all 0.4s ease;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  transform: scale(1.008);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+.red {
+  background-color: #d95980;
+}
+
+.yellow {
+  background-color: #f99b45;
+}
+
+.green {
+  background-color: #63c079;
+}
+
+.purple {
+  background-color: #819ff9;
+}
+
+@keyframes flashAnimation {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(2); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes userFlashAnimation {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.7) saturate(1.5); }
+  100% { filter: brightness(1); }
+}
+
+.flash {
+  animation: flashAnimation 0.4s ease;
+  background-color: whitesmoke !important;
+}
+
+.userFlash {
+  animation: userFlashAnimation 0.4s ease;
+  background-color: lime !important;
+}
+
+.start-btn {
+  font-family: "Google Sans", sans-serif;
+  padding: clamp(6px, 1.5vw, 12px) clamp(12px, 3vw, 25px);
+  color: black;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: solid 2px black;
+  letter-spacing: 1px;
+  font-weight: 600;
+  font-size: clamp(14px, 3vw, 16px);
+  background-color: hsl(49deg 98% 60%);
+  border-radius: 10px;
+  line-height: 1;
+  transition: all 0.3s ease;
+  display: inline-block;
+  margin: 15px auto;
+}
+
+.start-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.start-btn:active {
+  transform: scale(0.75);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+
+  .btn-container {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .btn-container {
+    gap: 10px;
+  }
+
+  .btn {
+    height: clamp(90px, 35vw, 110px);
+    width: clamp(90px, 35vw, 110px);
+    border: clamp(3px, 0.6vw, 5px) solid black;
+  }
+
+  .start-btn {
+    padding: 8px 20px;
+  }
+}
+
+@media (max-height: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 8px 0;
+  }
+
+  .btn-container {
+    margin: 10px auto;
+  }
+}
+
+/* Special positioning for bottom purple button */
+.purple {
+  grid-column: 2;
+}
+
+/* Add these styles for the popup */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(255, 255, 255, 0.95);
+    padding: 20px 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    font-family: "Google Sans", sans-serif;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.popup h2 {
+    white-space: normal;
+}
+
+.how-to-play-btn, .close-btn {
+    font-family: "Google Sans", sans-serif;
+    padding: 8px 20px;
+    margin: 10px 0;
+    background-color: #63c079;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.how-to-play-btn:hover, .close-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.instructions.popup {
+    max-width: 90%;
+    width: 400px;
+}
+
+.instructions-content {
+    text-align: left;
+    margin: 15px 0;
+}
+
+.instructions-content p {
+    margin: 8px 0;
+    line-height: 1.4;
+}
