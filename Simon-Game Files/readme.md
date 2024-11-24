@@ -1,7 +1,5 @@
 # Simon Game 🎮
 
-<h2><a href = "https://codepen.io/ezDecode/pen/ExzPyKZ">Game-Demo</a></h2>
-
 ## How to Play 🎯
 
 Simon is a classic memory game that challenges your ability to remember and repeat sequences. Here's how to play:
