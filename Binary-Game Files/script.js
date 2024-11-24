@@ -1,22 +1,31 @@
 class BinaryGame {
-    constructor() {
-        this.score = 0;
-        this.highScore = parseInt(localStorage.getItem('binaryGameHighScore')) || 0;
-        this.timeLeft = 30;
-        this.currentDecimal = 0;
-        this.isGameActive = false;
-        this.timer = null;
-        this.bits = new Array(8).fill(0);
-        this.difficulty = "easy";
-        this.currentAnswerCorrect = false;
-        this.scoreMultiplier = 1;
+    static CONFIG = {
+        DIFFICULTIES: {
+            easy: { timeLimit: 30, multiplier: 1 },
+            medium: { timeLimit: 20, multiplier: 2 },
+            hard: { timeLimit: 10, multiplier: 3 }
+        },
+        ANIMATION_DURATION: 300,
+        MAX_BINARY_NUMBER: 255
+    };
 
+    constructor() {
+        this.state = {
+            score: 0,
+            highScore: this.getStoredHighScore(),
+            timeLeft: BinaryGame.CONFIG.DIFFICULTIES.easy.timeLimit,
+            currentDecimal: 0,
+            isGameActive: false,
+            bits: new Array(8).fill(0),
+            difficulty: "easy",
+            currentAnswerCorrect: false,
+            scoreMultiplier: 1
+        };
+
+        this.timer = null;
         this.initializeElements();
         this.setupEventListeners();
-
-        // Show game board with blur and start screen by default
-        document.getElementById('game-content').classList.remove('hidden');
-        document.getElementById('start-screen').classList.remove('hidden');
+        this.showInitialScreen();
     }
 
     initializeElements() {
@@ -54,8 +63,8 @@ class BinaryGame {
     }
 
     startGame() {
-        this.isGameActive = true;
-        this.score = 0;
+        this.state.isGameActive = true;
+        this.state.score = 0;
         
         // Update start screen and game content transitions
         const gameContent = this.elements.gameContent;
@@ -79,7 +88,7 @@ class BinaryGame {
         const bitsContainer = document.querySelector(".binary-bits");
         bitsContainer.innerHTML = "";
 
-        this.bits.forEach((bit, index) => {
+        this.state.bits.forEach((bit, index) => {
             const bitElement = document.createElement("div");
             const powerOfTwo = Math.pow(2, 7 - index);
 
@@ -94,12 +103,12 @@ class BinaryGame {
             bitElement.onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                this.bits[index] = this.bits[index] ? 0 : 1;
+                this.state.bits[index] = this.state.bits[index] ? 0 : 1;
 
                 bitElement.className = `bit cursor-pointer text-center p-4 rounded-lg select-none transition-all duration-300 ease-in-out
-                                        ${this.bits[index] ? "bg-primary text-white" : "bg-white text-primary border-2 border-primary"}`;
+                                        ${this.state.bits[index] ? "bg-primary text-white" : "bg-white text-primary border-2 border-primary"}`;
 
-                bitElement.querySelector(".text-2xl").textContent = this.bits[index];
+                bitElement.querySelector(".text-2xl").textContent = this.state.bits[index];
                 
                 bitElement.classList.add("bit-click");
                 setTimeout(() => bitElement.classList.remove("bit-click"), 300);
@@ -114,40 +123,40 @@ class BinaryGame {
     }
 
     updateCurrentValue() {
-        const currentValue = parseInt(this.bits.join(""), 2);
+        const currentValue = parseInt(this.state.bits.join(""), 2);
         const binaryValue = document.getElementById("binary-value");
         if (binaryValue) {
             binaryValue.innerHTML = `
                 <div class="text-lg font-bold text-primary">Current Value: ${currentValue}</div>
-                <div class="text-sm mt-2 text-secondary">Binary: ${this.bits.join("")}</div>
+                <div class="text-sm mt-2 text-secondary">Binary: ${this.state.bits.join("")}</div>
             `;
         }
     }
 
     generateNewNumber() {
-        this.currentDecimal = Math.floor(Math.random() * 255) + 1;
+        this.state.currentDecimal = Math.floor(Math.random() * BinaryGame.CONFIG.MAX_BINARY_NUMBER) + 1;
         const decimalElement = document.getElementById("decimal-number");
         decimalElement.style.transform = "scale(0.8)";
         decimalElement.style.opacity = "0";
         setTimeout(() => {
-            decimalElement.textContent = this.currentDecimal;
+            decimalElement.textContent = this.state.currentDecimal;
             decimalElement.style.transform = "scale(1)";
             decimalElement.style.opacity = "1";
         }, 300);
-        this.bits = new Array(8).fill(0);
+        this.state.bits = new Array(8).fill(0);
         this.renderBits();
         this.resetTimer();
-        this.currentAnswerCorrect = false;
+        this.state.currentAnswerCorrect = false;
     }
 
     checkAnswer() {
-        const userBinary = parseInt(this.bits.join(""), 2);
-        if (userBinary === this.currentDecimal) {
-            if (!this.currentAnswerCorrect) {
-                const points = 10 * this.scoreMultiplier;
-                this.score += points;
+        const userBinary = parseInt(this.state.bits.join(""), 2);
+        if (userBinary === this.state.currentDecimal) {
+            if (!this.state.currentAnswerCorrect) {
+                const points = 10 * this.state.scoreMultiplier;
+                this.state.score += points;
                 this.updateScore();
-                this.currentAnswerCorrect = true;
+                this.state.currentAnswerCorrect = true;
             }
             this.showSuccessMessage();
             setTimeout(() => {
@@ -161,7 +170,7 @@ class BinaryGame {
     updateScore() {
         const scoreElement = document.getElementById('score');
         if (scoreElement) {
-            scoreElement.textContent = this.score;
+            scoreElement.textContent = this.state.score;
         }
     }
 
@@ -170,10 +179,10 @@ class BinaryGame {
             clearInterval(this.timer);
         }
         this.timer = setInterval(() => {
-            this.timeLeft--;
+            this.state.timeLeft--;
             this.updateTimer();
 
-            if (this.timeLeft <= 0) {
+            if (this.state.timeLeft <= 0) {
                 clearInterval(this.timer);
                 this.handleTimerEnd();
             }
@@ -185,18 +194,18 @@ class BinaryGame {
             clearInterval(this.timer);
         }
 
-        switch (this.difficulty) {
+        switch (this.state.difficulty) {
             case "easy":
-                this.timeLeft = 30;
+                this.state.timeLeft = BinaryGame.CONFIG.DIFFICULTIES.easy.timeLimit;
                 break;
             case "medium":
-                this.timeLeft = 20;
+                this.state.timeLeft = BinaryGame.CONFIG.DIFFICULTIES.medium.timeLimit;
                 break;
             case "hard":
-                this.timeLeft = 10;
+                this.state.timeLeft = BinaryGame.CONFIG.DIFFICULTIES.hard.timeLimit;
                 break;
             default:
-                this.timeLeft = 30;
+                this.state.timeLeft = BinaryGame.CONFIG.DIFFICULTIES.easy.timeLimit;
         }
 
         this.updateTimer();
@@ -204,7 +213,7 @@ class BinaryGame {
     }
 
     setDifficulty(level) {
-        if (!this.isGameActive) return;
+        if (!this.state.isGameActive) return;
 
         if (this.timer) {
             clearInterval(this.timer);
@@ -218,9 +227,9 @@ class BinaryGame {
             }
         });
 
-        this.difficulty = level;
-        this.timeLeft = level === "easy" ? 30 : level === "medium" ? 20 : 10;
-        this.scoreMultiplier = level === "easy" ? 1 : level === "medium" ? 2 : 3;
+        this.state.difficulty = level;
+        this.state.timeLeft = level === "easy" ? BinaryGame.CONFIG.DIFFICULTIES.easy.timeLimit : level === "medium" ? BinaryGame.CONFIG.DIFFICULTIES.medium.timeLimit : BinaryGame.CONFIG.DIFFICULTIES.hard.timeLimit;
+        this.state.scoreMultiplier = level === "easy" ? 1 : level === "medium" ? 2 : 3;
 
         this.updateTimer();
         this.startTimer();
@@ -229,11 +238,11 @@ class BinaryGame {
     }
 
     handleTimerEnd() {
-        const userBinary = parseInt(this.bits.join(""), 2);
-        if (userBinary === this.currentDecimal) {
-            if (!this.currentAnswerCorrect) {
-                const points = 10 * this.scoreMultiplier;
-                this.score += points;
+        const userBinary = parseInt(this.state.bits.join(""), 2);
+        if (userBinary === this.state.currentDecimal) {
+            if (!this.state.currentAnswerCorrect) {
+                const points = 10 * this.state.scoreMultiplier;
+                this.state.score += points;
                 this.updateScore();
             }
             this.showSuccessMessage();
@@ -251,7 +260,7 @@ class BinaryGame {
     updateTimer() {
         const timerElement = document.getElementById('timer');
         if (timerElement) {
-            timerElement.textContent = this.timeLeft;
+            timerElement.textContent = this.state.timeLeft;
         }
     }
 
@@ -297,21 +306,21 @@ class BinaryGame {
 
     endGame() {
         clearInterval(this.timer);
-        this.isGameActive = false;
+        this.state.isGameActive = false;
         this.saveHighScore();
         this.showGameOver();
     }
 
     saveHighScore() {
-        if (this.score > this.highScore) {
-            this.highScore = this.score;
-            localStorage.setItem('binaryGameHighScore', this.highScore);
+        if (this.state.score > this.state.highScore) {
+            this.state.highScore = this.state.score;
+            localStorage.setItem('binaryGameHighScore', this.state.highScore);
             this.updateHighScore();
         }
     }
 
     updateHighScore() {
-        document.getElementById('high-score').textContent = `${this.highScore}`;
+        document.getElementById('high-score').textContent = `${this.state.highScore}`;
     }
 
     showGameOver() {
@@ -320,9 +329,9 @@ class BinaryGame {
         gameOver.innerHTML = `
             <div class="bg-white p-8 rounded-xl text-center max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out">
                 <h2 class="text-3xl font-bold text-primary mb-4">Game Over!</h2>
-                <p class="text-secondary mb-2">Difficulty: ${this.difficulty.charAt(0).toUpperCase() + this.difficulty.slice(1)}</p>
-                <p class="text-secondary mb-2">Final Score: ${this.score}</p>
-                <p class="text-secondary mb-6">High Score: ${this.highScore}</p>
+                <p class="text-secondary mb-2">Difficulty: ${this.state.difficulty.charAt(0).toUpperCase() + this.state.difficulty.slice(1)}</p>
+                <p class="text-secondary mb-2">Final Score: ${this.state.score}</p>
+                <p class="text-secondary mb-6">High Score: ${this.state.highScore}</p>
                 <button id="play-again-button" 
                         class="bg-primary text-white px-8 py-4 rounded-lg hover:bg-secondary transition-all duration-300 transform hover:scale-105">
                     Play Again
@@ -338,8 +347,8 @@ class BinaryGame {
     }
 
     resetGame() {
-        this.score = 0;
-        this.currentAnswerCorrect = false;
+        this.state.score = 0;
+        this.state.currentAnswerCorrect = false;
         this.updateScore();
         this.startGame();
     }
@@ -348,7 +357,10 @@ class BinaryGame {
         if (this.timer) {
             clearInterval(this.timer);
         }
-        // Remove event listeners
+        this.removeEventListeners();
+    }
+
+    removeEventListeners() {
         this.elements.startButton.removeEventListener('click', () => this.startGame());
         this.elements.checkButton.removeEventListener('click', () => this.checkAnswer());
         this.elements.nextButton.removeEventListener('click', () => this.generateNewNumber());
@@ -358,12 +370,15 @@ class BinaryGame {
     }
 }
 
-// Initialize game when DOM is loaded
+// Initialize game with error handling
 document.addEventListener('DOMContentLoaded', () => {
-    const game = new BinaryGame();
-    
-    // Add cleanup on page unload
-    window.addEventListener("unload", () => {
-        game.cleanup();
-    });
+    try {
+        const game = new BinaryGame();
+        
+        window.addEventListener("unload", () => {
+            game.cleanup();
+        });
+    } catch (error) {
+        console.error('Failed to initialize game:', error);
+    }
 });

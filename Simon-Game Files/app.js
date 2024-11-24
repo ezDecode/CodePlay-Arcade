@@ -1,133 +1,205 @@
-let gameSeq = [];
-let userSeq = [];
-let btns = ["red", "yellow", "green", "purple"];
-let started = false;
-let level = 0;
-const FLASH_DURATION = 250;
-const LEVEL_UP_DELAY = 1000;
-const POPUP_DURATION = 2000;
-const POPUP_FADE_DURATION = 300;
-let highestScore = getHighestScore();
-let h2 = document.querySelector("h2");
-let h3 = document.querySelector("h3");
-let startBtn = document.querySelector(".start-btn");
+// Constants
+const GAME_CONFIG = {
+  FLASH_DURATION: 250,
+  LEVEL_UP_DELAY: 1000,
+  POPUP_DURATION: 2000,
+  POPUP_FADE_DURATION: 300,
+  COLORS: ["red", "yellow", "green", "purple"]
+};
 
-startBtn.addEventListener("click", function () {
-  if (!started) {
-    started = true;
-    startBtn.style.display = "none";
-    levelUp();
+// Game state
+class SimonGame {
+  constructor() {
+    this.gameSequence = [];
+    this.userSequence = [];
+    this.isStarted = false;
+    this.level = 0;
+    this.highestScore = this.getHighestScore();
+    
+    // DOM elements
+    this.elements = {
+      heading: document.querySelector("h2"),
+      subheading: document.querySelector("h3"),
+      startButton: document.querySelector(".start-btn"),
+      buttons: document.querySelectorAll(".btn")
+    };
+    
+    // Bind methods to preserve 'this' context
+    this.startGame = this.startGame.bind(this);
+    this.handleButtonPress = this.handleButtonPress.bind(this);
+    
+    this.initializeGame();
   }
-});
 
-function gameFlash(btn) {
-  btn.classList.add("flash");
-  setTimeout(function () {
-    btn.classList.remove("flash");
-  }, FLASH_DURATION);
-}
-
-function userFlash(btn) {
-  btn.classList.add("userFlash");
-  setTimeout(function () {
-    btn.classList.remove("userFlash");
-  }, FLASH_DURATION);
-}
-
-function levelUp() {
-  userSeq = [];
-  level++;
-  h2.innerText = `Level ${level}`;
-  let randIdx = Math.floor(Math.random() * 4);
-  let randColor = btns[randIdx];
-  let randBtn = document.querySelector(`.${randColor}`);
-  gameSeq.push(randColor);
-  gameFlash(randBtn);
-}
-
-function getHighestScore() {
-  try {
-    return parseInt(localStorage.getItem("highestScore")) || 0;
-  } catch (e) {
-    console.warn("localStorage not available:", e);
-    return 0;
+  initializeGame() {
+    // Remove any existing listeners first
+    this.cleanup();
+    
+    // Add new listeners
+    this.elements.startButton.addEventListener("click", this.startGame);
+    this.elements.buttons.forEach(btn => {
+      btn.addEventListener("click", this.handleButtonPress);
+    });
   }
-}
 
-function showGameOverPopup(score, highScore) {
-  const popup = document.createElement('div');
-  popup.className = 'popup game-over';
-  popup.innerHTML = `
-    <h2>Game Over!</h2>
-    <p>Your score: <b>${score}</b></p>
-    <p>Highest Score: <b>${highScore}</b></p>
-  `;
-  document.body.appendChild(popup);
-  
-  return popup;
-}
-
-function checkAns(idx) {
-  if (userSeq[idx] === gameSeq[idx]) {
-    if (userSeq.length == gameSeq.length) {
-      setTimeout(levelUp, LEVEL_UP_DELAY);
+  startGame() {
+    if (!this.isStarted) {
+      this.isStarted = true;
+      this.elements.startButton.style.display = 'none';
+      this.gameSequence = []; // Reset game sequence
+      this.level = 0; // Reset level
+      this.levelUp();
     }
-  } else {
-    if (level > highestScore) {
-      highestScore = level;
-      try {
-        localStorage.setItem("highestScore", highestScore);
-      } catch (e) {
-        console.warn("Could not save high score:", e);
+  }
+
+  levelUp() {
+    this.userSequence = [];
+    this.level++;
+    this.elements.heading.innerText = `Level ${this.level}`;
+    
+    const randomColor = GAME_CONFIG.COLORS[Math.floor(Math.random() * GAME_CONFIG.COLORS.length)];
+    const randomButton = document.querySelector(`.${randomColor}`);
+    
+    this.gameSequence.push(randomColor);
+    
+    // Play the entire sequence
+    this.playSequence();
+  }
+
+  playSequence() {
+    let i = 0;
+    const interval = setInterval(() => {
+      const color = this.gameSequence[i];
+      const button = document.querySelector(`.${color}`);
+      this.animateButton(button, 'flash');
+      
+      i++;
+      if (i >= this.gameSequence.length) {
+        clearInterval(interval);
       }
+    }, GAME_CONFIG.FLASH_DURATION * 2);
+  }
+
+  animateButton(button, animationType) {
+    if (!button) return;
+    
+    button.classList.add(animationType);
+    setTimeout(() => {
+      button.classList.remove(animationType);
+    }, GAME_CONFIG.FLASH_DURATION);
+  }
+
+  handleButtonPress(event) {
+    if (!this.isStarted) return;
+    
+    const button = event.currentTarget;
+    this.animateButton(button, 'userFlash');
+    
+    const userColor = button.classList[1]; // Get color class
+    this.userSequence.push(userColor);
+    this.checkAnswer(this.userSequence.length - 1);
+  }
+
+  checkAnswer(index) {
+    if (this.userSequence[index] === this.gameSequence[index]) {
+      if (this.userSequence.length === this.gameSequence.length) {
+        setTimeout(() => this.levelUp(), GAME_CONFIG.LEVEL_UP_DELAY);
+      }
+    } else {
+      this.handleGameOver();
     }
+  }
 
-    const popup = showGameOverPopup(level, highestScore);
+  handleGameOver() {
+    this.updateHighScore();
+    this.showGameOverPopup();
+    this.reset();
+  }
+
+  showGameOverPopup() {
+    // Create popup container
+    const popup = document.createElement("div");
+    popup.className = "popup-container";
     
-    const body = document.querySelector("body");
-    body.style.backgroundColor = "red";
-    setTimeout(() => {
-      body.style.backgroundColor = "beige";
-    }, 150);
+    // Create popup content with glassmorphism effect
+    popup.innerHTML = `
+        <div class="game-over-popup">
+            <div class="popup-content">
+                <h2>Game Over!</h2>
+                <div class="score-container">
+                    <p class="score">Score: ${this.level - 1}</p>
+                    <p class="high-score">High Score: ${this.highestScore}</p>
+                </div>
+                <div class="button-container">
+                    <button id="play-again-btn" class="play-again-btn">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
 
-    reset();
+    // Add to DOM
+    document.body.appendChild(popup);
+
+    // Add click handler for Play Again button
+    const playAgainBtn = popup.querySelector('#play-again-btn');
+    playAgainBtn.addEventListener('click', () => {
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+            popup.remove();
+            this.startGame();
+        }, 300);
+    });
+
+    // Trigger entrance animation
+    requestAnimationFrame(() => {
+        popup.classList.add('active');
+    });
+  }
+
+  updateHighScore() {
+    if (this.level - 1 > this.highestScore) {
+      this.highestScore = this.level - 1;
+      localStorage.setItem('simonHighScore', this.highestScore);
+    }
+  }
+
+  getHighestScore() {
+    try {
+      return parseInt(localStorage.getItem('simonHighScore')) || 0;
+    } catch (e) {
+      console.warn('localStorage not available:', e);
+      return 0;
+    }
+  }
+
+  reset() {
+    this.isStarted = false;
+    this.level = 0;
+    this.gameSequence = [];
+    this.userSequence = [];
     
-    startBtn.style.display = "none";
+    this.elements.startButton.style.display = 'block';
+    this.elements.startButton.disabled = false;
+    this.elements.heading.innerHTML = "Ready to Play? Press Start!";
+  }
 
-    setTimeout(() => {
-      popup.style.opacity = '0';
-      popup.style.transition = `opacity ${POPUP_FADE_DURATION}ms ease`;
-      setTimeout(() => {
-        popup?.parentNode?.removeChild(popup);
-        startBtn.style.display = "block";
-        startBtn.disabled = false;
-        h2.innerHTML = "Ready to Play? Press Start!";
-      }, POPUP_FADE_DURATION);
-    }, POPUP_DURATION);
+  cleanup() {
+    // Remove existing event listeners
+    this.elements.startButton.removeEventListener("click", this.startGame);
+    this.elements.buttons.forEach(btn => {
+      btn.removeEventListener("click", this.handleButtonPress);
+    });
   }
 }
 
-function btnPress(e) {
-  if (!started) return;
+// Initialize game when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const game = new SimonGame();
   
-  const btn = e.currentTarget;
-  userFlash(btn);
-  const userColor = btn.getAttribute("id");
-  userSeq.push(userColor);
-  checkAns(userSeq.length - 1);
-}
-
-let allBtn = document.querySelectorAll(".btn");
-for (btn of allBtn) {
-  btn.addEventListener("click", btnPress);
-}
-
-function reset() {
-  started = false;
-  level = 0;
-  gameSeq = [];
-  userSeq = [];
-  startBtn.style.display = "block";
-  startBtn.disabled = false;
-  h2.innerHTML = "Ready to Play? Press Start!";
-}
+  // Cleanup on page unload
+  window.addEventListener('unload', () => {
+    game.cleanup();
+  });
+});
