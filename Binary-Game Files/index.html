@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Binary Number Game</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#227C9D",
+                        secondary: "#17C3B2",
+                        accent: "#FFCB77",
+                        base: "#FEF9EF",
+                        danger: "#FE6D73",
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="bg-base min-h-screen flex items-center justify-center p-4">
+    <main class="container mx-auto max-w-4xl bg-white rounded-2xl shadow-2xl p-8">
+        <div class="text-center mb-8 slide-in">
+            <h1 class="text-4xl font-bold text-primary mb-3">
+                Convert to Binary!
+            </h1>
+            <p class="text-xl text-secondary">
+                Convert the decimal number to binary by clicking the bits
+            </p>
+        </div>
+
+        <div class="game-board fade-in">
+            <!-- Game Info Row -->
+            <div class="grid grid-cols-3 gap-4 mb-8">
+                <div class="text-center p-4 bg-base rounded-lg flex items-center justify-center gap-2 shadow-md">
+                    <span class="text-lg text-primary font-bold">Time:</span>
+                    <span id="timer" class="text-2xl text-secondary font-bold" role="timer">30</span>
+                    <span class="text-lg text-primary font-bold">s</span>
+                </div>
+                <div class="text-center p-4 bg-base rounded-lg flex items-center justify-center gap-2 shadow-md">
+                    <span class="text-lg text-primary font-bold">Score:</span>
+                    <span id="score" class="text-2xl text-secondary font-bold">0</span>
+                </div>
+                <div class="text-center p-4 bg-base rounded-lg flex items-center justify-center gap-2 shadow-md">
+                    <span class="text-lg text-primary font-bold">High Score:</span>
+                    <span id="high-score" class="text-2xl text-secondary font-bold">0</span>
+                </div>
+            </div>
+
+            <!-- Difficulty Buttons -->
+            <div class="mb-8">
+                <h3 class="text-lg font-bold text-primary mb-3 text-center">
+                    Select Level
+                </h3>
+                <div class="flex justify-center gap-4">
+                    <button
+                        id="easy-button"
+                        class="difficulty-btn bg-secondary text-white px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 hover:shadow-lg transition-all duration-200 ease-out"
+                    >
+                        Easy
+                    </button>
+                    <button
+                        id="medium-button"
+                        class="difficulty-btn bg-accent text-primary px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 hover:shadow-lg transition-all duration-200 ease-out"
+                    >
+                        Medium
+                    </button>
+                    <button
+                        id="hard-button"
+                        class="difficulty-btn bg-danger text-white px-6 py-2 rounded-lg font-semibold hover:bg-opacity-90 hover:shadow-lg transition-all duration-200 ease-out"
+                    >
+                        Hard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Content -->
+            <div id="game-content">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-primary">Decimal Number:</h3>
+                    <div
+                        id="decimal-number"
+                        class="text-6xl font-bold text-secondary mt-2 transition-all duration-300 ease-in-out"
+                    >
+                        0
+                    </div>
+                </div>
+
+                <div class="flex flex-col items-center gap-8">
+                    <div
+                        class="binary-bits flex justify-center gap-4 max-w-3xl mx-auto flex-wrap"
+                        role="group"
+                        aria-label="Binary bits"
+                    ></div>
+
+                    <div
+                        id="binary-value"
+                        class="w-full max-w-lg text-center p-4 bg-base rounded-lg shadow-md transition-all duration-300 ease-in-out"
+                    ></div>
+
+                    <div class="flex justify-center gap-4">
+                        <button
+                            id="check-button"
+                            class="bg-primary text-white px-8 py-3 rounded-lg font-semibold hover:bg-secondary transition-all duration-300 transform hover:scale-105"
+                        >
+                            Check Answer
+                        </button>
+                        <button
+                            id="next-button"
+                            class="bg-accent text-primary px-8 py-3 rounded-lg font-semibold border-2 border-primary hover:bg-opacity-90 transition-all duration-300 transform hover:scale-105"
+                        >
+                            Next Number
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Screen -->
+        <div
+            id="start-screen"
+            class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+        >
+            <div
+                class="bg-white p-8 rounded-xl text-center max-w-md w-full mx-4 transform transition-all duration-300 ease-in-out"
+            >
+                <h2 class="text-3xl font-bold text-primary mb-4">
+                    Binary Number Game
+                </h2>
+                <p class="text-secondary mb-6">
+                    Convert decimal numbers to binary and test your skills!
+                </p>
+                <button
+                    id="start-button"
+                    class="bg-primary text-white px-8 py-4 rounded-lg font-semibold hover:bg-secondary transition-all duration-300 transform hover:scale-105"
+                >
+                    Start Game
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        <div
+            class="fixed inset-0 flex items-center justify-center pointer-events-none z-50"
+        >
+            <div
+                id="success-message"
+                class="hidden bg-secondary bg-opacity-90 text-white p-6 rounded-xl shadow-lg pointer-events-auto max-w-md mx-4 text-center transition-all duration-300 transform scale-0"
+            >
+                <span class="font-bold text-2xl">🎉 Correct!</span>
+                <p class="mt-2 text-lg">Great job converting to binary!</p>
+            </div>
+            <div
+                id="error-message"
+                class="hidden bg-danger bg-opacity-90 text-white p-6 rounded-xl shadow-lg pointer-events-auto max-w-md mx-4 text-center transition-all duration-300 transform scale-0"
+            >
+                <span class="font-bold text-2xl">❌ Not quite right.</span>
+                <p class="mt-2 text-lg">Try again!</p>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

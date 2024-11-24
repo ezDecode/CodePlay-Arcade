@@ -54,6 +54,8 @@ h3 {
   transition: all 0.4s ease;
   border-radius: 15px;
   cursor: pointer;
+  will-change: transform;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover {
@@ -191,6 +193,8 @@ h3 {
     z-index: 1000;
     font-family: "Google Sans", sans-serif;
     animation: fadeIn 0.3s ease-in;
+    role: "dialog";
+    aria-modal: "true";
 }
 
 @keyframes fadeIn {
@@ -232,4 +236,29 @@ h3 {
 .instructions-content p {
     margin: 8px 0;
     line-height: 1.4;
+}
+
+/* Improve button accessibility */
+.btn:focus {
+  outline: 3px solid #000;
+  outline-offset: 2px;
+}
+
+.btn:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Add prefers-reduced-motion support */
+@media (prefers-reduced-motion: reduce) {
+  .btn, .start-btn {
+    transition: none;
+  }
+  
+  .flash, .userFlash {
+    animation: none;
+  }
+  
+  .popup {
+    animation: none;
+  }
 }

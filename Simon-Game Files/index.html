@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Play the classic Simon Says memory game online">
     <title>Simon Says Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Simon Says Game</h1>
-    <h2>Ready to Play? Press Start!</h2>
+    <main>
+        <h1>Simon Says Game</h1>
+        <h2 aria-live="polite">Ready to Play? Press Start!</h2>
 
-    <div class="btn-container">
-        <div class="btn red" id="red"></div>
-        <div class="btn yellow" id="yellow"></div>
-        <div class="btn green" id="green"></div>
-        <div class="btn purple" id="purple"></div>
-    </div>
+        <div class="btn-container" role="group" aria-label="Game buttons">
+            <button class="btn red" id="red" aria-label="Red button"></button>
+            <button class="btn yellow" id="yellow" aria-label="Yellow button"></button>
+            <button class="btn green" id="green" aria-label="Green button"></button>
+            <button class="btn purple" id="purple" aria-label="Purple button"></button>
+        </div>
 
-    <button class="start-btn">Start</button>
+        <button class="start-btn" aria-label="Start game">Start</button>
 
-    <h3></h3>
+        <h3 aria-live="polite"></h3>
+    </main>
     <script src="app.js"></script>
 </body>
 </html>
