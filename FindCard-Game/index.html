@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Match Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Memory Match Game</h1>
+            <div class="game-info">
+                <div class="moves">Moves: <span id="moves-count">0</span></div>
+                <div class="timer">Time: <span id="time">00:00</span></div>
+                <button id="reset-btn">Reset Game</button>
+            </div>
+        </header>
+        <div class="game-board">
+            <!-- Cards will be dynamically generated here -->
+        </div>
+    </div>
+
+    <!-- Congratulations Modal -->
+    <div class="modal" id="congratsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🎉 Congratulations! 🎉</h2>
+            </div>
+            <div class="modal-body">
+                <p>You've completed the game in:</p>
+                <p class="stats">
+                    <span id="finalMoves">0 moves</span>
+                    <br>
+                    <span id="finalTime">00:00</span>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button id="playAgainBtn">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
