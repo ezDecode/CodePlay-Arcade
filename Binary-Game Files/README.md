@@ -50,7 +50,3 @@ Each position represents a power of 2:
 ## Contributing 🤝
 
 Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
-
-## License 📝
-
-[MIT License](LICENSE)
